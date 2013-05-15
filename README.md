@@ -7,7 +7,7 @@ Usage
 -----
 
 <pre>
-xvideos-dl <URL>
+xvideos-dl &lt;URL&gt;
 </pre>
 
 Detailed Usage
