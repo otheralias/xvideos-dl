@@ -1,0 +1,40 @@
+#!/bin/bash
+
+CMD=`basename $0`
+
+show_help()
+{
+    echo "Usage: $CMD <URL>"
+}
+
+if [ $# -ne 1 ]; then
+    echo "fail! -- expect 1 arguments! ==> $@"
+    show_help
+    exit 1
+fi
+
+URL=$1
+
+echo ""
+echo "Extracting video URL from.. ==> $URL"
+EXTRACTED_URL=`curl $URL       | # download HTML using curl
+        tr -d '\n'             | # remove carriage returns
+        sed 's#</#\n</#g'      | # tokenize by HTML tag
+        grep 'flv_url='        | # locate lines with "flv_url="
+        tr '\n' @              | # tokenize by line
+        cut -d@ -f1            | # isolate first instance
+        sed 's/^.*flv_url=//g' | # remove everything before "flv_url="
+        sed 's/&.*$//g'        | # remove everything after "&"
+        sed 's#\%3A#:#g'       | # replace %3A --> :
+        sed 's#\%2F#/#g'       | # replace %2F --> /
+        sed 's#\%3F#?#g'       | # replace %3F --> ?
+        sed 's#\%3D#=#g'       | # replace %3D --> =
+        sed 's#\%26#\&#g'`       # replace %26 --> &
+
+echo ""
+echo "Downloading video from.. ==> $EXTRACTED_URL"
+LOCAL_FILE="`pwd`/`basename $URL`.flv"
+curl $EXTRACTED_URL > $LOCAL_FILE
+
+echo ""
+echo "Download complete! ==> $LOCAL_FILE"
