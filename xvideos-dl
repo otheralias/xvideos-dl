@@ -76,7 +76,11 @@ else
     fi
     echo "Saving as new.. ==> `basename $LOCAL_FILE`"
 fi
-curl $EXTRACTED_URL > $LOCAL_FILE
+touch $LOCAL_FILE
+TEMP=${LOCAL_FILE}.part
+trap "rm -f $TEMP" EXIT
+curl $EXTRACTED_URL > $TEMP
+mv $TEMP $LOCAL_FILE
 
 echo ""
 echo "Download complete! ==> $LOCAL_FILE"
